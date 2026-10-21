@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aethen Roleplay · Admin Panel</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0B0F17',
+                            800: '#111827',
+                            700: '#1F2937',
+                            600: '#374151'
+                        },
+                        brand: {
+                            500: '#6366F1',
+                            600: '#4F46E5',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Sora', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, .font-heading { font-family: 'Sora', sans-serif; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0B0F17; }
+        ::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+    </style>
+</head>
+<body class="bg-dark-900 text-gray-200 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 z-40 bg-dark-900 flex items-center justify-center p-4">
+        <div class="bg-dark-800 border border-gray-800 rounded-2xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden">
+            <!-- Glowing background blur effect -->
+            <div class="absolute -top-12 -left-12 w-32 h-32 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-12 -right-12 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-14 h-14 bg-brand-500/10 text-brand-500 rounded-2xl mb-4 border border-brand-500/20">
+                    <i class="fa-solid fa-gamepad text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white tracking-tight">Aethen Roleplay</h1>
+                <p class="text-sm text-gray-400 mt-1">Panel admin. Masuk untuk mengelola karakter pemain.</p>
+            </div>
+
+            <!-- Login Demo Alert Box -->
+            <div class="mb-6 p-3 bg-brand-500/10 border border-brand-500/20 rounded-xl text-xs text-brand-300 flex items-start gap-2.5">
+                <i class="fa-solid fa-circle-info text-brand-400 mt-0.5"></i>
+                <div>
+                    <strong>Akses Demo:</strong><br>
+                    Username: <code class="bg-dark-900/50 px-1 py-0.5 rounded text-white">admin</code> | 
+                    Password: <code class="bg-dark-900/50 px-1 py-0.5 rounded text-white">soleh123</code>
+                </div>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Username</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-500"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" id="login-user" required autofocus autocomplete="username" placeholder="admin"
+                            class="w-full bg-dark-900 border border-gray-700/70 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-500"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" id="login-pass" required autocomplete="current-password" placeholder="••••••••"
+                            class="w-full bg-dark-900 border border-gray-700/70 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
+                    </div>
+                </div>
+
+                <button type="submit" 
+                    class="w-full bg-brand-600 hover:bg-brand-500 text-white font-medium py-2.5 px-4 rounded-xl shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center gap-2 group">
+                    <span>Masuk ke Panel</span>
+                    <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP DASHBOARD -->
+    <div id="app" class="hidden min-h-screen flex flex-col">
+        <!-- Top Navbar -->
+        <header class="bg-dark-800/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-8">
+                    <a href="#" class="flex items-center gap-3 font-heading font-bold text-lg text-white">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50 animate-pulse"></span>
+                        Aethen Roleplay
+                    </a>
+                    <nav class="hidden md:flex items-center gap-1">
+                        <button onclick="switchTab('players')" id="nav-players" class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center gap-2">
+                            <i class="fa-solid fa-users text-xs"></i> Pemain
+                        </button>
+                        <button onclick="switchTab('logs')" id="nav-logs" class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all text-gray-400 hover:text-white hover:bg-dark-700/50 flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-xs"></i> Riwayat Aksi
+                        </button>
+                    </nav>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 text-xs text-gray-400 bg-dark-900/60 px-3 py-1.5 rounded-xl border border-gray-800">
+                        <i class="fa-solid fa-user-shield text-brand-400"></i>
+                        <span id="current-user-display" class="font-medium text-gray-200">admin</span>
+                    </div>
+                    <button onclick="handleLogout()" title="Keluar" class="p-2 text-gray-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl border border-transparent hover:border-rose-500/20 transition-all">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+            
+            <!-- TAB 1: PLAYER MANAGEMENT -->
+            <div id="tab-players" class="space-y-6">
+                <!-- Statistics Grid -->
+                <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <div class="bg-dark-800/60 border border-gray-800/80 rounded-2xl p-4">
+                        <span class="text-xs font-medium text-gray-400 block mb-1">Total Karakter</span>
+                        <strong id="stat-total" class="text-xl font-bold text-white font-heading">0</strong>
+                    </div>
+                    <div class="bg-dark-800/60 border border-gray-800/80 rounded-2xl p-4">
+                        <span class="text-xs font-medium text-gray-400 block mb-1">Login 24 Jam</span>
+                        <strong id="stat-d1" class="text-xl font-bold text-emerald-400 font-heading">0</strong>
+                    </div>
+                    <div class="bg-dark-800/60 border border-gray-800/80 rounded-2xl p-4">
+                        <span class="text-xs font-medium text-gray-400 block mb-1">Login 7 Hari</span>
+                        <strong id="stat-d7" class="text-xl font-bold text-sky-400 font-heading">0</strong>
+                    </div>
+                    <div class="bg-dark-800/60 border border-gray-800/80 rounded-2xl p-4">
+                        <span class="text-xs font-medium text-gray-400 block mb-1">Admin Staff</span>
+                        <strong id="stat-adm" class="text-xl font-bold text-purple-400 font-heading">0</strong>
+                    </div>
+                    <div class="bg-dark-800/60 border border-gray-800/80 rounded-2xl p-4">
+                        <span class="text-xs font-medium text-gray-400 block mb-1">Di Penjara</span>
+                        <strong id="stat-jail" class="text-xl font-bold text-rose-400 font-heading">0</strong>
+                    </div>
+                    <div class="bg-dark-800/60 border border-amber-500/20 bg-amber-500/5 rounded-2xl p-4 col-span-2 sm:col-span-1 lg:col-span-1">
+                        <span class="text-xs font-medium text-amber-400/80 block mb-1">Total Uang (Cash+Bank)</span>
+                        <strong id="stat-money" class="text-lg font-bold text-amber-400 font-heading">$0</strong>
+                    </div>
+                </section>
+
+                <!-- Search & Filters Toolbar -->
+                <section class="bg-dark-800/40 border border-gray-800 rounded-2xl p-4 flex flex-col md:flex-row gap-3 items-center justify-between">
+                    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-1">
+                        <!-- Search Box -->
+                        <div class="relative flex-1 max-w-md">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-500"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
+                            <input type="search" id="search-input" oninput="renderPlayers()" placeholder="Cari nama, UCP, IP, atau ID..."
+                                class="w-full bg-dark-900 border border-gray-700/60 rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                        <!-- Category Filter -->
+                        <select id="filter-select" onchange="renderPlayers()"
+                            class="bg-dark-900 border border-gray-700/60 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                            <option value="">Semua Karakter</option>
+                            <option value="admin">Admin Staff</option>
+                            <option value="vip">VIP Status</option>
+                            <option value="faction">Anggota Faksi</option>
+                            <option value="jail">Di Penjara</option>
+                            <option value="rich">Total Uang ≥ $10 Juta</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                        <button onclick="resetDataMock()" title="Reset ke data awal" class="px-3 py-2 bg-dark-700/50 hover:bg-dark-700 text-gray-300 rounded-xl text-xs font-medium border border-gray-700/50 transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-rotate"></i> Reset Mock Data
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Players Data Table -->
+                <section class="bg-dark-800/60 border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-gray-300">
+                            <thead class="bg-dark-900/80 text-xs uppercase tracking-wider text-gray-400 border-b border-gray-800">
+                                <tr>
+                                    <th class="py-3.5 px-4 font-semibold">ID</th>
+                                    <th class="py-3.5 px-4 font-semibold">Nama Karakter</th>
+                                    <th class="py-3.5 px-4 font-semibold">UCP</th>
+                                    <th class="py-3.5 px-4 font-semibold text-right">Level</th>
+                                    <th class="py-3.5 px-4 font-semibold text-right">Cash</th>
+                                    <th class="py-3.5 px-4 font-semibold text-right">Bank</th>
+                                    <th class="py-3.5 px-4 font-semibold">Status / Badge</th>
+                                    <th class="py-3.5 px-4 font-semibold text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="player-table-body" class="divide-y divide-gray-800/60">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 2: AUDIT LOGS -->
+            <div id="tab-logs" class="hidden space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-white font-heading">Riwayat Aksi Panel</h2>
+                        <p class="text-xs text-gray-400">Catatan perubahan karakter yang tersimpan di LocalStorage browser ini.</p>
+                    </div>
+                    <button onclick="clearAuditLogs()" class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-xl text-xs font-medium transition-all">
+                        Hapus Semua Log
+                    </button>
+                </div>
+
+                <div class="bg-dark-800/60 border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-gray-300">
+                            <thead class="bg-dark-900/80 text-xs uppercase tracking-wider text-gray-400 border-b border-gray-800">
+                                <tr>
+                                    <th class="py-3.5 px-4 font-semibold">Waktu</th>
+                                    <th class="py-3.5 px-4 font-semibold">Admin</th>
+                                    <th class="py-3.5 px-4 font-semibold">Aksi</th>
+                                    <th class="py-3.5 px-4 font-semibold">Player ID</th>
+                                    <th class="py-3.5 px-4 font-semibold">Detail Perubahan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table-body" class="divide-y divide-gray-800/60">
+                                <!-- Log rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- PLAYER EDIT MODAL -->
+    <div id="player-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-dark-800 border border-gray-800 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-auto">
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-gray-800 flex items-center justify-between bg-dark-900/50">
+                <div>
+                    <h2 id="modal-char-name" class="text-xl font-bold text-white font-heading">Alexander_Stone</h2>
+                    <p id="modal-char-sub" class="text-xs text-gray-400 mt-0.5">ID: 1 | UCP: StoneUser | IP: 182.1.22.4</p>
+                </div>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-xl bg-dark-700/50 text-gray-400 hover:text-white hover:bg-dark-700 flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content (Scrollable) -->
+            <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                <!-- Quick Money Form -->
+                <div class="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-bolt"></i> Atur Uang Cepat
+                    </h3>
+                    <form onsubmit="handleQuickMoney(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <select id="qm-col" class="bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                            <option value="Char_Money">Cash</option>
+                            <option value="Char_BankMoney">Bank</option>
+                        </select>
+                        <select id="qm-mode" class="bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                            <option value="set">Set Jadi</option>
+                            <option value="add">Tambah (+)</option>
+                            <option value="sub">Kurangi (-)</option>
+                        </select>
+                        <input type="number" id="qm-amount" required placeholder="Jumlah ($)" class="bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                        <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-dark-900 font-bold px-3 py-2 rounded-xl text-xs transition-all">
+                            Terapkan
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Full Field Editor Form -->
+                <form id="edit-player-form" onsubmit="handleSavePlayer(event)" class="space-y-6">
+                    <input type="hidden" id="edit-pid">
+
+                    <!-- Identitas -->
+                    <div>
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-brand-400 mb-3">Identitas Karakter</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Nama Karakter</label>
+                                <input type="text" id="edit-Char_Name" required class="w-full bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Level</label>
+                                <input type="number" id="edit-Char_Level" required class="w-full bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Skin ID (0-311)</label>
+                                <input type="number" id="edit-Char_Skin" required class="w-full bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Keuangan -->
+                    <div>
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-3">Keuangan</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Uang Cash ($)</label>
+                                <input type="number" id="edit-Char_Money" required class="w-full bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Uang Bank ($)</label>
+                                <input type="number" id="edit-Char_BankMoney" required class="w-full bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status & Staff -->
+                    <div>
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-purple-400 mb-3">Faksi & Status Staff</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Faksi ID (0=None, 1=Police, 2=Medic, 3=Gov)</label>
+                                <input type="number" id="edit-Char_Faction" required class="w-full bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Level Admin (0-10)</label>
+                                <input type="number" id="edit-Char_Admin" required class="w-full bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Level VIP (0-3)</label>
+                                <input type="number" id="edit-Char_VIP" required class="w-full bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Hukuman -->
+                    <div>
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-rose-400 mb-3">Status Penjara</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Status Penjara (0 = Bebas, 1 = Dipenjara)</label>
+                                <select id="edit-Char_Jailed" class="w-full bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                                    <option value="0">0 - Bebas</option>
+                                    <option value="1">1 - Dipenjara</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Waktu Penjara (Detik)</label>
+                                <input type="number" id="edit-Char_JailTime" class="w-full bg-dark-900 border border-gray-700/70 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Actions -->
+                    <div class="pt-4 border-t border-gray-800 flex items-center justify-between">
+                        <button type="button" onclick="deletePlayer()" class="px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-xl text-xs font-medium transition-all">
+                            <i class="fa-solid fa-trash mr-1"></i> Hapus Karakter
+                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="closeModal()" class="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-gray-300 rounded-xl text-xs font-medium transition-all">
+                                Batal
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-medium rounded-xl text-xs shadow-lg shadow-brand-600/20 transition-all">
+                                Simpan Perubahan
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLIENT SIDE LOGIC -->
+    <script>
+        // MOCK INITIAL DATA
+        const DEFAULT_PLAYERS = [
+            { pID: 1, Char_Name: "Alexander_Stone", Char_UCP: "StoneDev", Char_Level: 12, Char_Money: 2500000, Char_BankMoney: 15400000, Char_Admin: 5, Char_VIP: 2, Char_Faction: 1, Char_Jailed: 0, Char_JailTime: 0, Char_Skin: 295, Char_IP: "182.1.22.4", Char_LastLogin: "2026-03-30 10:12:00" },
+            { pID: 2, Char_Name: "Marcus_Vance", Char_UCP: "Vance99", Char_Level: 8, Char_Money: 45000, Char_BankMoney: 320000, Char_Admin: 0, Char_VIP: 1, Char_Faction: 2, Char_Jailed: 0, Char_JailTime: 0, Char_Skin: 274, Char_IP: "36.72.105.12", Char_LastLogin: "2026-03-30 08:45:00" },
+            { pID: 3, Char_Name: "Dimitri_Rostov", Char_UCP: "RostovGangs", Char_Level: 15, Char_Money: 12000000, Char_BankMoney: 85000000, Char_Admin: 0, Char_VIP: 3, Char_Faction: 0, Char_Jailed: 1, Char_JailTime: 3600, Char_Skin: 110, Char_IP: "114.122.45.8", Char_LastLogin: "2026-03-29 22:10:00" },
+            { pID: 4, Char_Name: "Soleh_Kurniawan", Char_UCP: "SolehRoleplay", Char_Level: 20, Char_Money: 550000, Char_BankMoney: 2300000, Char_Admin: 10, Char_VIP: 3, Char_Faction: 3, Char_Jailed: 0, Char_JailTime: 0, Char_Skin: 294, Char_IP: "103.253.245.20", Char_LastLogin: "2026-03-30 12:00:00" },
+            { pID: 5, Char_Name: "Bryan_O_Conner", Char_UCP: "FastRacer", Char_Level: 5, Char_Money: 12000, Char_BankMoney: 80000, Char_Admin: 0, Char_VIP: 0, Char_Faction: 0, Char_Jailed: 0, Char_JailTime: 0, Char_Skin: 28, Char_IP: "180.244.12.99", Char_LastLogin: "2026-03-20 15:30:00" }
+        ];
+
+        // APP STATE
+        let players = [];
+        let auditLogs = [];
+        let currentUser = null;
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            checkSession();
+        });
+
+        function loadState() {
+            const savedPlayers = localStorage.getItem('aethen_players');
+            players = savedPlayers ? JSON.parse(savedPlayers) : [...DEFAULT_PLAYERS];
+
+            const savedLogs = localStorage.getItem('aethen_logs');
+            auditLogs = savedLogs ? JSON.parse(savedLogs) : [];
+
+            currentUser = sessionStorage.getItem('aethen_user');
+        }
+
+        function saveState() {
+            localStorage.setItem('aethen_players', JSON.stringify(players));
+            localStorage.setItem('aethen_logs', JSON.stringify(auditLogs));
+        }
+
+        function checkSession() {
+            if (currentUser) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app').classList.remove('hidden');
+                document.getElementById('current-user-display').innerText = currentUser;
+                renderDashboard();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app').classList.add('hidden');
+            }
+        }
+
+        // AUTHENTICATION
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('login-user').value.trim();
+            const p = document.getElementById('login-pass').value.trim();
+
+            if (u === 'admin' && p === 'soleh123') {
+                currentUser = u;
+                sessionStorage.setItem('aethen_user', u);
+                showToast('Login Berhasil! Selamat datang di Panel Admin.', 'success');
+                checkSession();
+            } else {
+                showToast('Username atau password salah!', 'error');
+            }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('aethen_user');
+            currentUser = null;
+            showToast('Berhasil keluar dari panel.', 'info');
+            checkSession();
+        }
+
+        // UI HELPERS & TOAST
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgClass = type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' :
+                            type === 'error' ? 'bg-rose-500/10 border-rose-500/30 text-rose-300' :
+                            'bg-brand-500/10 border-brand-500/30 text-brand-300';
+            
+            const icon = type === 'success' ? 'fa-circle-check' :
+                         type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info';
+
+            toast.className = `p-4 border rounded-2xl shadow-xl backdrop-blur-md text-xs flex items-center gap-3 transition-all transform translate-y-2 opacity-0 pointer-events-auto ${bgClass}`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i> <span class="font-medium">${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function formatMoney(num) {
+            return '$' + new Intl.NumberFormat('en-US').format(num);
+        }
+
+        function getFactionName(id) {
+            const f = { 1: 'Kepolisian', 2: 'Medis', 3: 'Pemerintah' };
+            return f[id] || (id > 0 ? `Faksi #${id}` : '-');
+        }
+
+        // NAVIGATION TABS
+        function switchTab(tab) {
+            document.getElementById('tab-players').classList.toggle('hidden', tab !== 'players');
+            document.getElementById('tab-logs').classList.toggle('hidden', tab !== 'logs');
+
+            const btnPlayers = document.getElementById('nav-players');
+            const btnLogs = document.getElementById('nav-logs');
+
+            if (tab === 'players') {
+                btnPlayers.className = "px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center gap-2";
+                btnLogs.className = "px-3 py-1.5 rounded-lg text-sm font-medium transition-all text-gray-400 hover:text-white hover:bg-dark-700/50 flex items-center gap-2";
+            } else {
+                btnLogs.className = "px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center gap-2";
+                btnPlayers.className = "px-3 py-1.5 rounded-lg text-sm font-medium transition-all text-gray-400 hover:text-white hover:bg-dark-700/50 flex items-center gap-2";
+                renderLogs();
+            }
+        }
+
+        // RENDER DASHBOARD & STATS
+        function renderDashboard() {
+            renderStats();
+            renderPlayers();
+        }
+
+        function renderStats() {
+            document.getElementById('stat-total').innerText = players.length;
+            document.getElementById('stat-d1').innerText = players.filter(p => p.pID % 2 === 0).length + 1; // Simulated
+            document.getElementById('stat-d7').innerText = players.length;
+            document.getElementById('stat-adm').innerText = players.filter(p => p.Char_Admin > 0).length;
+            document.getElementById('stat-jail').innerText = players.filter(p => p.Char_Jailed > 0).length;
+
+            const totalMoney = players.reduce((sum, p) => sum + p.Char_Money + p.Char_BankMoney, 0);
+            document.getElementById('stat-money').innerText = formatMoney(totalMoney);
+        }
+
+        // RENDER PLAYERS TABLE
+        function renderPlayers() {
+            const tbody = document.getElementById('player-table-body');
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const filter = document.getElementById('filter-select').value;
+
+            const filtered = players.filter(p => {
+                const matchSearch = p.Char_Name.toLowerCase().includes(search) || 
+                                    p.Char_UCP.toLowerCase().includes(search) || 
+                                    p.pID.toString() === search;
+
+                if (!matchSearch) return false;
+
+                if (filter === 'admin') return p.Char_Admin > 0;
+                if (filter === 'vip') return p.Char_VIP > 0;
+                if (filter === 'faction') return p.Char_Faction > 0;
+                if (filter === 'jail') return p.Char_Jailed > 0;
+                if (filter === 'rich') return (p.Char_Money + p.Char_BankMoney) >= 10000000;
+
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-gray-500 text-xs">Tidak ada karakter yang cocok.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(p => `
+                <tr class="hover:bg-dark-700/30 transition-colors">
+                    <td class="py-3 px-4 font-mono text-xs text-gray-500">#${p.pID}</td>
+                    <td class="py-3 px-4">
+                        <span class="font-semibold text-white cursor-pointer hover:text-brand-400 transition-colors" onclick="openModal(${p.pID})">
+                            ${p.Char_Name.replace('_', ' ')}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-xs text-gray-400">${p.Char_UCP}</td>
+                    <td class="py-3 px-4 text-right font-mono text-xs text-gray-300">${p.Char_Level}</td>
+                    <td class="py-3 px-4 text-right font-mono text-xs text-emerald-400 font-medium">${formatMoney(p.Char_Money)}</td>
+                    <td class="py-3 px-4 text-right font-mono text-xs text-amber-400 font-medium">${formatMoney(p.Char_BankMoney)}</td>
+                    <td class="py-3 px-4">
+                        <div class="flex flex-wrap gap-1">
+                            ${p.Char_Admin > 0 ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">Admin Lvl ${p.Char_Admin}</span>` : ''}
+                            ${p.Char_VIP > 0 ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">VIP ${p.Char_VIP}</span>` : ''}
+                            ${p.Char_Faction > 0 ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">${getFactionName(p.Char_Faction)}</span>` : ''}
+                            ${p.Char_Jailed > 0 ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">Penjara</span>` : ''}
+                            ${p.Char_Admin === 0 && p.Char_VIP === 0 && p.Char_Faction === 0 && p.Char_Jailed === 0 ? `<span class="text-xs text-gray-600">-</span>` : ''}
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="openModal(${p.pID})" class="px-2.5 py-1 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 rounded-lg text-xs font-medium border border-brand-500/20 transition-all">
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // MODAL EDITOR & QUICK ACTIONS
+        function openModal(pid) {
+            const p = players.find(x => x.pID === pid);
+            if (!p) return;
+
+            document.getElementById('edit-pid').value = p.pID;
+            document.getElementById('modal-char-name').innerText = p.Char_Name.replace('_', ' ');
+            document.getElementById('modal-char-sub').innerText = `ID: ${p.pID} | UCP: ${p.Char_UCP} | IP: ${p.Char_IP}`;
+
+            document.getElementById('edit-Char_Name').value = p.Char_Name;
+            document.getElementById('edit-Char_Level').value = p.Char_Level;
+            document.getElementById('edit-Char_Skin').value = p.Char_Skin;
+            document.getElementById('edit-Char_Money').value = p.Char_Money;
+            document.getElementById('edit-Char_BankMoney').value = p.Char_BankMoney;
+            document.getElementById('edit-Char_Faction').value = p.Char_Faction;
+            document.getElementById('edit-Char_Admin').value = p.Char_Admin;
+            document.getElementById('edit-Char_VIP').value = p.Char_VIP;
+            document.getElementById('edit-Char_Jailed').value = p.Char_Jailed;
+            document.getElementById('edit-Char_JailTime').value = p.Char_JailTime;
+
+            const modal = document.getElementById('player-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('player-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function handleSavePlayer(e) {
+            e.preventDefault();
+            const pid = parseInt(document.getElementById('edit-pid').value);
+            const p = players.find(x => x.pID === pid);
+            if (!p) return;
+
+            const changes = [];
+
+            const newName = document.getElementById('edit-Char_Name').value;
+            if (p.Char_Name !== newName) { changes.push(`Nama: ${p.Char_Name} → ${newName}`); p.Char_Name = newName; }
+
+            const newMoney = parseInt(document.getElementById('edit-Char_Money').value);
+            if (p.Char_Money !== newMoney) { changes.push(`Cash: ${p.Char_Money} → ${newMoney}`); p.Char_Money = newMoney; }
+
+            const newBank = parseInt(document.getElementById('edit-Char_BankMoney').value);
+            if (p.Char_BankMoney !== newBank) { changes.push(`Bank: ${p.Char_BankMoney} → ${newBank}`); p.Char_BankMoney = newBank; }
+
+            p.Char_Level = parseInt(document.getElementById('edit-Char_Level').value);
+            p.Char_Skin = parseInt(document.getElementById('edit-Char_Skin').value);
+            p.Char_Faction = parseInt(document.getElementById('edit-Char_Faction').value);
+            p.Char_Admin = parseInt(document.getElementById('edit-Char_Admin').value);
+            p.Char_VIP = parseInt(document.getElementById('edit-Char_VIP').value);
+            p.Char_Jailed = parseInt(document.getElementById('edit-Char_Jailed').value);
+            p.Char_JailTime = parseInt(document.getElementById('edit-Char_JailTime').value);
+
+            if (changes.length === 0) changes.push("Update atribut umum karakter");
+
+            addAuditLog('EDIT', pid, changes.join('; '));
+            saveState();
+            renderDashboard();
+            closeModal();
+            showToast('Data karakter berhasil diperbarui!', 'success');
+        }
+
+        function handleQuickMoney(e) {
+            e.preventDefault();
+            const pid = parseInt(document.getElementById('edit-pid').value);
+            const p = players.find(x => x.pID === pid);
+            if (!p) return;
+
+            const col = document.getElementById('qm-col').value;
+            const mode = document.getElementById('qm-mode').value;
+            const amt = parseInt(document.getElementById('qm-amount').value) || 0;
+
+            const oldVal = p[col];
+            let newVal = oldVal;
+
+            if (mode === 'set') newVal = amt;
+            else if (mode === 'add') newVal = oldVal + amt;
+            else if (mode === 'sub') newVal = Math.max(0, oldVal - amt);
+
+            p[col] = newVal;
+
+            document.getElementById(`edit-${col}`).value = newVal;
+            addAuditLog('MONEY', pid, `${col === 'Char_Money' ? 'Cash' : 'Bank'}: ${formatMoney(oldVal)} → ${formatMoney(newVal)} (${mode} ${formatMoney(amt)})`);
+            
+            saveState();
+            renderDashboard();
+            showToast(`Uang berhasil diperbarui menjadi ${formatMoney(newVal)}`, 'success');
+        }
+
+        function deletePlayer() {
+            const pid = parseInt(document.getElementById('edit-pid').value);
+            const p = players.find(x => x.pID === pid);
+            if (!p) return;
+
+            if (confirm(`Apakah Anda yakin ingin menghapus karakter ${p.Char_Name}?`)) {
+                players = players.filter(x => x.pID !== pid);
+                addAuditLog('DELETE', pid, `Menghapus karakter ${p.Char_Name}`);
+                saveState();
+                renderDashboard();
+                closeModal();
+                showToast(`Karakter #${pid} telah dihapus.`, 'error');
+            }
+        }
+
+        function resetDataMock() {
+            if (confirm("Kembalikan data ke awal?")) {
+                players = [...DEFAULT_PLAYERS];
+                saveState();
+                renderDashboard();
+                showToast("Data berhasil direset ke keadaan awal.", 'info');
+            }
+        }
+
+        // AUDIT LOGS SYSTEM
+        function addAuditLog(action, pid, detail) {
+            const log = {
+                id: Date.now(),
+                created_at: new Date().toLocaleString('id-ID'),
+                admin: currentUser || 'admin',
+                action: action,
+                pid: pid,
+                detail: detail
+            };
+            auditLogs.unshift(log);
+            if (auditLogs.length > 100) auditLogs.pop();
+        }
+
+        function renderLogs() {
+            const tbody = document.getElementById('logs-table-body');
+            if (auditLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-gray-500 text-xs">Belum ada riwayat aksi tercatat.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = auditLogs.map(l => `
+                <tr class="hover:bg-dark-700/30 transition-colors">
+                    <td class="py-3 px-4 text-xs text-gray-500 font-mono">${l.created_at}</td>
+                    <td class="py-3 px-4 font-semibold text-xs text-gray-300">${l.admin}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold ${l.action === 'DELETE' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-sky-500/10 text-sky-400 border border-sky-500/20'}">
+                            ${l.action}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 font-mono text-xs text-gray-400">#${l.pid}</td>
+                    <td class="py-3 px-4 text-xs text-gray-300">${l.detail}</td>
+                </tr>
+            `).join('');
+        }
+
+        function clearAuditLogs() {
+            if (confirm("Hapus seluruh catatan audit log?")) {
+                auditLogs = [];
+                saveState();
+                renderLogs();
+                showToast("Audit log dibersihkan.", 'info');
+            }
+        }
+    </script>
+</body>
+</html>
