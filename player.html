@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detail Pemain · Aethen Roleplay</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <header class="top">
+        <a class="brand" href="index.html"><span class="dot"></span>Aethen Roleplay</a>
+        <nav>
+            <a href="index.html">Pemain</a>
+            <a href="logs.html">Riwayat aksi</a>
+        </nav>
+        <button class="btn ghost sm" onclick="logout()">Keluar</button>
+    </header>
+
+    <main class="wrap">
+        <a class="back" href="index.html">Kembali ke daftar</a>
+        <header class="phead">
+          <div>
+            <h1>John_Doe</h1>
+            <p class="muted">ID 1 · UCP johndoe99 · Laki-laki</p>
+          </div>
+          <div><span class="badge pink">Admin 3</span></div>
+        </header>
+
+        <section class="card">
+          <h2>Atur Uang Cepat</h2>
+          <form onsubmit="updateMoney(event)" class="moneyform">
+            <label>Jenis Uang
+                <select id="moneyType">
+                    <option value="cash">Cash</option>
+                    <option value="bank">Bank</option>
+                </select>
+            </label>
+            <label>Jumlah<input type="number" id="moneyAmount" required></label>
+            <button class="btn">Terapkan</button>
+          </form>
+        </section>
+    </main>
+    <script src="assets/app.js"></script>
+</body>
+</html>
