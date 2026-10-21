@@ -3,21 +3,22 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Masuk · Aethen Roleplay</title>
+    <title>Masuk Panel · Aethen Roleplay</title>
     <link rel="stylesheet" href="assets/style.css">
 </head>
-<body>
+<body class="login-bg">
     <main class="wrap">
         <div class="login">
           <form class="card login-card" onsubmit="handleLogin(event)">
             <h1>Aethen Roleplay</h1>
-            <p class="muted">Panel admin statis untuk GitHub Pages.</p>
-            <label>Username<input type="text" id="user" required autofocus></label>
-            <label>Password<input type="password" id="pass" required></label>
-            <button class="btn" type="submit">Masuk</button>
+            <p class="muted">Panel Admin Statis - Kelola database karakter dengan cepat.</p>
+            <label>Username<input type="text" id="user" placeholder="admin" required autofocus></label>
+            <label>Password<input type="password" id="pass" placeholder="soleh123" required></label>
+            <button class="btn full" type="submit">Masuk ke Panel</button>
           </form>
         </div>
     </main>
+    <div id="toastContainer" class="toast-container"></div>
     <script src="assets/app.js"></script>
 </body>
 </html>

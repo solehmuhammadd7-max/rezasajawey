@@ -3,43 +3,71 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detail Pemain · Aethen Roleplay</title>
+    <title>Detail Karakter · Aethen Roleplay</title>
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
     <header class="top">
-        <a class="brand" href="index.html"><span class="dot"></span>Aethen Roleplay</a>
+        <a class="brand" href="index.html"><span class="dot"></span>Aethen Roleplay Panel</a>
         <nav>
             <a href="index.html">Pemain</a>
-            <a href="logs.html">Riwayat aksi</a>
+            <a href="online.html">Pemain Online <span class="badge green" id="onlineCountBadge">0</span></a>
+            <a href="logs.html">Riwayat Aksi</a>
         </nav>
         <button class="btn ghost sm" onclick="logout()">Keluar</button>
     </header>
 
     <main class="wrap">
-        <a class="back" href="index.html">Kembali ke daftar</a>
+        <a class="back" href="index.html">← Kembali ke daftar pemain</a>
         <header class="phead">
           <div>
-            <h1>John_Doe</h1>
-            <p class="muted">ID 1 · UCP johndoe99 · Laki-laki</p>
+            <h1 id="pName">Loading...</h1>
+            <p class="muted" id="pMeta">ID - · UCP -</p>
           </div>
-          <div><span class="badge pink">Admin 3</span></div>
+          <div id="pBadges"></div>
         </header>
 
-        <section class="card">
-          <h2>Atur Uang Cepat</h2>
-          <form onsubmit="updateMoney(event)" class="moneyform">
-            <label>Jenis Uang
-                <select id="moneyType">
-                    <option value="cash">Cash</option>
-                    <option value="bank">Bank</option>
-                </select>
-            </label>
-            <label>Jumlah<input type="number" id="moneyAmount" required></label>
-            <button class="btn">Terapkan</button>
-          </form>
-        </section>
+        <div class="grid-layout">
+            <section class="card">
+              <h2>Atur Saldo Uang Cepat</h2>
+              <form onsubmit="handleMoneyUpdate(event)" class="moneyform">
+                <label>Jenis Saldo
+                    <select id="moneyCol">
+                        <option value="Char_Money">Uang Cash</option>
+                        <option value="Char_BankMoney">Uang Bank</option>
+                        <option value="Char_DirtyMoney">Uang Kotor</option>
+                    </select>
+                </label>
+                <label>Aksi
+                    <select id="moneyMode">
+                        <option value="add">Tambah (+)</option>
+                        <option value="set">Set Nilai</option>
+                        <option value="sub">Kurangi (-)</option>
+                    </select>
+                </label>
+                <label>Jumlah ($)<input type="number" id="moneyAmount" placeholder="100000" required></label>
+                <button class="btn">Terapkan Perubahan</button>
+              </form>
+            </section>
+
+            <section class="card">
+              <h2>Edit Data Database Karakter</h2>
+              <form onsubmit="handleEditPlayer(event)">
+                <div class="grid-2">
+                    <label>Nama Karakter<input type="text" id="editName" required></label>
+                    <label>UCP<input type="text" id="editUcp" required></label>
+                    <label>Level<input type="number" id="editLevel" required></label>
+                    <label>Level Admin<input type="number" id="editAdmin" required></label>
+                    <label>Status Penjara (0/1)<input type="number" id="editJailed" min="0" max="1" required></label>
+                    <label>VIP Level<input type="number" id="editVip" required></label>
+                </div>
+                <button class="btn" style="margin-top:1rem;">Simpan Perubahan Database</button>
+              </form>
+            </section>
+        </div>
     </main>
+
+    <div id="toastContainer" class="toast-container"></div>
     <script src="assets/app.js"></script>
 </body>
 </html>

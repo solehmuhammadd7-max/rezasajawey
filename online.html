@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pemain Online · Aethen Roleplay</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <header class="top">
+        <a class="brand" href="index.html"><span class="dot"></span>Aethen Roleplay Panel</a>
+        <nav>
+            <a href="index.html">Pemain</a>
+            <a href="online.html" class="on">Pemain Online <span class="badge green" id="onlineCountBadge">0</span></a>
+            <a href="logs.html">Riwayat Aksi</a>
+        </nav>
+        <button class="btn ghost sm" onclick="logout()">Keluar</button>
+    </header>
+
+    <main class="wrap">
+        <h1>Daftar Pemain Sedang Online</h1>
+        <p class="muted">Karakter yang saat ini sedang berada di dalam server game.</p>
+
+        <div class="table-wrap card flush">
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama Karakter</th>
+                        <th>UCP</th>
+                        <th>IP Address</th>
+                        <th class="r">Level</th>
+                        <th>Faksi / Jabatan</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="onlineTableBody">
+                    <!-- Data online di-render lewat JS -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="toastContainer" class="toast-container"></div>
+    <script src="assets/app.js"></script>
+</body>
+</html>

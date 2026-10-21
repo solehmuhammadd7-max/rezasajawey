@@ -3,25 +3,42 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Pemain · Aethen Roleplay</title>
+    <title>Dashboard Pemain · Aethen Roleplay</title>
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
     <header class="top">
-        <a class="brand" href="index.html"><span class="dot"></span>Aethen Roleplay</a>
+        <a class="brand" href="index.html"><span class="dot"></span>Aethen Roleplay Panel</a>
         <nav>
             <a href="index.html" class="on">Pemain</a>
-            <a href="logs.html">Riwayat aksi</a>
+            <a href="online.html">Pemain Online <span class="badge green" id="onlineCountBadge">0</span></a>
+            <a href="logs.html">Riwayat Aksi</a>
         </nav>
         <button class="btn ghost sm" onclick="logout()">Keluar</button>
     </header>
 
     <main class="wrap">
         <section class="stats">
-            <div class="stat"><span>Total karakter</span><strong>1.240</strong></div>
-            <div class="stat"><span>Login 24 jam</span><strong>48</strong></div>
-            <div class="stat"><span>Login 7 hari</span><strong>310</strong></div>
-            <div class="stat"><span>Admin</span><strong>12</strong></div>
+            <div class="stat"><span>Total Karakter</span><strong id="statTotal">0</strong></div>
+            <div class="stat"><span>Pemain Online</span><strong id="statOnline">0</strong></div>
+            <div class="stat"><span>Total Admin</span><strong id="statAdmin">0</strong></div>
+            <div class="stat gold"><span>Cash Beredar</span><strong id="statCash">$0</strong></div>
+            <div class="stat gold"><span>Bank Beredar</span><strong id="statBank">$0</strong></div>
+        </section>
+
+        <section class="card filter-card">
+            <div class="filter-group">
+                <input type="search" id="searchInput" placeholder="Cari Nama Karakter, UCP, atau ID..." oninput="renderPlayers()">
+                <select id="filterSelect" onchange="renderPlayers()">
+                    <option value="all">Semua Karakter</option>
+                    <option value="online">Sedang Online</option>
+                    <option value="admin">Staff Admin</option>
+                    <option value="vip">Pemain VIP</option>
+                    <option value="jailed">Di Penjara</option>
+                    <option value="rich">Sultan (Cash+Bank >= $1M)</option>
+                </select>
+                <button class="btn" onclick="openAddPlayerModal()">+ Tambah Pemain</button>
+            </div>
         </section>
 
         <div class="table-wrap card flush">
@@ -29,28 +46,42 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Nama</th>
+                        <th>Nama Karakter</th>
                         <th>UCP</th>
                         <th class="r">Level</th>
                         <th class="r">Cash</th>
                         <th class="r">Bank</th>
                         <th>Status</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td class="muted">1</td>
-                        <td><a class="name" href="player.html?id=1">John_Doe</a></td>
-                        <td class="muted">johndoe99</td>
-                        <td class="r">15</td>
-                        <td class="r gold-t">$5.500.000</td>
-                        <td class="r gold-t">$25.000.000</td>
-                        <td><span class="badge pink">Admin 3</span></td>
-                    </tr>
+                <tbody id="playerTableBody">
+                    <!-- Data di-render lewat app.js -->
                 </tbody>
             </table>
         </div>
     </main>
+
+    <!-- Modal Tambah Pemain -->
+    <div id="addModal" class="modal-overlay">
+        <div class="modal">
+            <h2>Tambah Karakter Baru</h2>
+            <form onsubmit="handleAddPlayer(event)">
+                <label>Nama Karakter<input type="text" id="addName" placeholder="Contoh: Ronnie_Varquez" required></label>
+                <label>UCP<input type="text" id="addUcp" placeholder="Contoh: Ronnie" required></label>
+                <div class="grid-2">
+                    <label>Level<input type="number" id="addLevel" value="1" required></label>
+                    <label>Cash ($)<input type="number" id="addMoney" value="500" required></label>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn ghost" onclick="closeAddPlayerModal()">Batal</button>
+                    <button type="submit" class="btn">Simpan Karakter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
     <script src="assets/app.js"></script>
 </body>
 </html>
